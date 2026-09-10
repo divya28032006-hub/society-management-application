@@ -10,10 +10,10 @@ export class ComplaintController {
       throw new AppError('User not found', 401);
     }
 
-    const complaint = await ComplaintService.createComplaint({
-      ...req.body,
-      raisedBy: req.user.id
-    });
+    const complaint = await ComplaintService.createComplaint(
+      { ...req.body, raisedBy: req.user.id },
+      req.user.society.toString()
+    );
 
     res.status(201).json({
       status: 'success',
@@ -31,11 +31,12 @@ export class ComplaintController {
     const { status, priority, category, search } = req.query;
 
     const { complaints, total } = await ComplaintService.getComplaints(
-      { status, priority, category, search },
+      req.user.id,
+      req.user.role,
       page,
       limit,
-      req.user.id,
-      req.user.role
+      { status, priority, category, search },
+      req.user.society.toString()
     );
 
     res.status(200).json({
@@ -84,7 +85,7 @@ export class ComplaintController {
 
     const complaint = await ComplaintService.addComment(req.params.id, {
       text: req.body.text,
-      user: req.user.id
+      userId: req.user.id
     });
 
     res.status(200).json({

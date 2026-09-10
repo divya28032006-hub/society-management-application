@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { complaintsApi } from '../../api/complaints';
+import { showCrossPlatformAlert } from '../../utils/alert';
 
 export const CreateComplaintScreen = ({ navigation }: any) => {
   const [title, setTitle] = useState('');
@@ -18,9 +19,9 @@ export const CreateComplaintScreen = ({ navigation }: any) => {
     setSubmitting(true);
     try {
       await complaintsApi.create({ title, description, category, priority });
-      Alert.alert('Success', 'Complaint submitted successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      showCrossPlatformAlert('Success', 'Complaint submitted successfully!', () => {
+        navigation.goBack();
+      });
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to log complaint');
     } finally {

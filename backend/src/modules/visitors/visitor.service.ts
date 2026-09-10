@@ -37,10 +37,19 @@ export class VisitorService {
         throw new AppError('User not found', 404);
       }
 
+      if (user.role === 'resident' && (!user.flatNumber || input.hostFlat !== user.flatNumber)) {
+        throw new AppError('Residents can only pre-approve visitors for their own flat', 403);
+      }
+
+      const isResidentPreApproval = user.role === 'resident';
+      const isGateCheckIn = user.role === 'security' || user.role === 'admin';
+
       const visitor = await Visitor.create({
         ...input,
         society: user.society,
-        status: VisitorStatus.PENDING
+        status: isResidentPreApproval ? VisitorStatus.PRE_APPROVED : VisitorStatus.CHECKED_IN,
+        ...(isResidentPreApproval ? { preApprovedBy: user._id } : {}),
+        ...(isGateCheckIn ? { entryTime: new Date() } : {})
       });
 
       await visitor.populate('preApprovedBy', 'name email');
@@ -64,11 +73,14 @@ export class VisitorService {
     try {
       const query: any = {};
 
-      // If security or resident, show only their society visitors
-      if (userRole !== 'admin' && userId) {
+      // Security sees its society's pre-approvals; residents only see their own.
+      if (userId) {
         const user = await User.findById(userId);
         if (user) {
           query.society = user.society;
+          if (userRole === 'resident') {
+            query.preApprovedBy = user._id;
+          }
         }
       }
 
@@ -191,8 +203,6 @@ export class VisitorService {
       visitor.status = VisitorStatus.CHECKED_IN;
       visitor.entryTime = new Date();
       if (notes) visitor.notes = notes;
-      visitor.preApprovedBy = new Types.ObjectId(userId);
-
       await visitor.save();
       await visitor.populate('preApprovedBy', 'name email');
 

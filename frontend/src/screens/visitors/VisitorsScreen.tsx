@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
 import { visitorsApi } from '../../api/visitors';
 import { Visitor } from '../../types';
@@ -29,9 +30,7 @@ export const VisitorsScreen = ({ navigation }: any) => {
     }
   };
 
-  useEffect(() => {
-    fetchVisitors();
-  }, []);
+  useFocusEffect(useCallback(() => { fetchVisitors(); }, []));
 
   const handleCheckIn = async (id: string) => {
     try {
@@ -90,7 +89,7 @@ export const VisitorsScreen = ({ navigation }: any) => {
               </View>
               <Text style={styles.meta}>Phone: {item.phone}</Text>
               <Text style={styles.meta}>Purpose: {item.purpose}</Text>
-              <Text style={styles.meta}>Flat: Wing {item.wing || '-'} - Flat {item.flatNumber}</Text>
+              <Text style={styles.meta}>Host flat: {item.hostFlat}</Text>
               {item.vehicleNumber && <Text style={styles.meta}>Vehicle: {item.vehicleNumber}</Text>}
 
               {isSecurity && item.status === 'pre_approved' && (

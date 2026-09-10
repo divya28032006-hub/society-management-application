@@ -92,10 +92,15 @@ export class FacilityService {
     limit: number = 10,
     search?: string,
     isActive?: boolean,
-    hasAvailability?: boolean
+    hasAvailability?: boolean,
+    societyId?: string
   ): Promise<{ facilities: IFacility[]; total: number }> {
     try {
       const query: any = {};
+
+      if (societyId) {
+        query.society = new Types.ObjectId(societyId);
+      }
       
       if (search) {
         query.$or = [

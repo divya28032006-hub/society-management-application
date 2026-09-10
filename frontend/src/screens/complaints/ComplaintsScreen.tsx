@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
 import { complaintsApi } from '../../api/complaints';
 import { Complaint } from '../../types';
@@ -29,9 +30,7 @@ export const ComplaintsScreen = ({ navigation }: any) => {
     }
   };
 
-  useEffect(() => {
-    fetchComplaints();
-  }, []);
+  useFocusEffect(useCallback(() => { fetchComplaints(); }, []));
 
   const handleStatusUpdate = async (id: string, newStatus: 'in_progress' | 'resolved' | 'rejected') => {
     try {

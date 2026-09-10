@@ -1,5 +1,6 @@
 import { Announcement, AnnouncementCategory, IAnnouncement } from '../../models/Announcement';
 import { User } from '../../models/User';
+import { NotificationService } from '../notifications/notification.service';
 import { AppError } from '../../utils/AppError';
 import { Types } from 'mongoose';
 import logger from '../../utils/logger';
@@ -30,7 +31,24 @@ export class AnnouncementService {
       });
 
       // Populate author details
-      await announcement.populate('author', 'name email role');
+      await announcement.populate('author', 'name email role society');
+
+      const authorUser = await User.findById(input.author);
+      if (authorUser && authorUser.society) {
+        try {
+          await NotificationService.sendToAllResidents(
+            {
+              title: `New Notice: ${announcement.title}`,
+              message: announcement.content.length > 100 ? `${announcement.content.substring(0, 100)}...` : announcement.content,
+              type: 'info',
+              metadata: { announcementId: announcement._id }
+            },
+            authorUser.society.toString()
+          );
+        } catch (notifErr) {
+          logger.error('Failed to dispatch announcement notification:', notifErr);
+        }
+      }
 
       logger.info(`Announcement created: ${announcement.title} by ${input.author}`);
       return announcement;

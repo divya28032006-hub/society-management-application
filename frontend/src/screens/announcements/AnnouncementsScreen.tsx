@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { announcementsApi } from '../../api/announcements';
 import { Announcement } from '../../types';
@@ -29,9 +30,7 @@ export const AnnouncementsScreen = ({ navigation }: any) => {
     }
   };
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, []);
+  useFocusEffect(useCallback(() => { fetchAnnouncements(); }, []));
 
   const onRefresh = () => {
     setRefreshing(true);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Switch } from 'react-native';
 import { announcementsApi } from '../../api/announcements';
+import { showCrossPlatformAlert } from '../../utils/alert';
 
 export const CreateAnnouncementScreen = ({ navigation }: any) => {
   const [title, setTitle] = useState('');
@@ -18,9 +19,9 @@ export const CreateAnnouncementScreen = ({ navigation }: any) => {
     setSubmitting(true);
     try {
       await announcementsApi.create({ title, content, category, pinned });
-      Alert.alert('Success', 'Announcement published successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      showCrossPlatformAlert('Success', 'Announcement published successfully!', () => {
+        navigation.goBack();
+      });
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to create announcement');
     } finally {

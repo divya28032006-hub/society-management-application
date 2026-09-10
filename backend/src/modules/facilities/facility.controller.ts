@@ -18,7 +18,10 @@ export class FacilityController {
     sendSuccess(res, { facility }, 'Facility created successfully', 201);
   });
 
-  static getFacilities = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  static getFacilities = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new AppError('User not found', 401);
+    }
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string;
@@ -32,7 +35,8 @@ export class FacilityController {
       limit,
       search,
       isActive,
-      hasAvailability
+      hasAvailability,
+      req.user.society.toString()
     );
 
     sendPaginatedSuccess(

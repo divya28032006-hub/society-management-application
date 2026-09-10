@@ -90,14 +90,12 @@ export interface Facility {
   name: string;
   description: string;
   capacity: number;
-  hourlyRate: number;
-  requiresApproval: boolean;
+  availableSlots: number;
+  bookingFee?: number;
   isActive: boolean;
   image?: string;
-  operatingHours: {
-    open: string;
-    close: string;
-  };
+  operatingHours?: { start: string; end: string };
+  amenities?: string[];
 }
 
 export interface Booking {
@@ -118,8 +116,8 @@ export interface Visitor {
   name: string;
   phone: string;
   purpose: string;
-  flatNumber: string;
-  wing: string;
+  hostFlat: string;
+  hostName?: string;
   hostResident?: User;
   entryTime?: string;
   exitTime?: string;
@@ -131,11 +129,12 @@ export interface Visitor {
 export interface EmergencyContact {
   _id: string;
   name: string;
-  role: string;
+  designation: string;
   phone: string;
-  altPhone?: string;
-  category: 'security' | 'medical' | 'fire' | 'police' | 'plumber' | 'electrician' | 'other';
-  isAvailable24x7: boolean;
+  email?: string;
+  address?: string;
+  priority: number;
+  isActive: boolean;
 }
 
 export interface NotificationItem {

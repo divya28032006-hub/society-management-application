@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { emergencyApi } from '../../api/emergency';
 import { EmergencyContact } from '../../types';
@@ -26,9 +27,7 @@ export const EmergencyContactsScreen = () => {
     }
   };
 
-  useEffect(() => {
-    fetchContacts();
-  }, []);
+  useFocusEffect(useCallback(() => { fetchContacts(); }, []));
 
   if (loading) return <LoadingState message="Loading emergency contacts..." />;
   if (error) return <ErrorState message={error} onRetry={fetchContacts} />;
@@ -48,12 +47,12 @@ export const EmergencyContactsScreen = () => {
               <View style={styles.row}>
                 <View>
                   <Text style={styles.name}>{item.name}</Text>
-                  <Text style={styles.role}>{item.role} • {item.category?.toUpperCase()}</Text>
+                  <Text style={styles.role}>{item.designation}</Text>
                 </View>
-                {item.isAvailable24x7 && <Text style={styles.badge247}>24/7</Text>}
+                {item.priority >= 5 && <Text style={styles.badge247}>URGENT</Text>}
               </View>
               <Text style={styles.phone}>📞 Phone: {item.phone}</Text>
-              {item.altPhone && <Text style={styles.phone}>📞 Alt: {item.altPhone}</Text>}
+              {item.address && <Text style={styles.phone}>Address: {item.address}</Text>}
             </Card>
           )}
         />

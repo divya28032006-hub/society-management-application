@@ -1,5 +1,6 @@
 import { Complaint, IComplaint, ComplaintStatus, ComplaintPriority } from '../../models/Complaint';
 import { User } from '../../models/User';
+import { NotificationService } from '../notifications/notification.service';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import { Types } from 'mongoose';
@@ -25,15 +26,17 @@ interface UpdateComplaintInput {
 
 interface CommentInput {
   text: string;
-  user: string;
+  userId: string;
 }
 
 export class ComplaintService {
-  static async createComplaint(input: CreateComplaintInput): Promise<IComplaint> {
+  static async createComplaint(input: CreateComplaintInput, societyId: string): Promise<IComplaint> {
     try {
       const complaint = await Complaint.create({
         ...input,
-        raisedBy: new Types.ObjectId(input.raisedBy)
+        raisedBy: new Types.ObjectId(input.raisedBy),
+        society: new Types.ObjectId(societyId),
+        status: ComplaintStatus.PENDING
       });
 
       await complaint.populate('raisedBy', 'name email flatNumber');
@@ -47,17 +50,17 @@ export class ComplaintService {
   }
 
   static async getComplaints(
-    filters: any,
+    userId: string,
+    userRole: string,
     page: number = 1,
     limit: number = 10,
-    userId?: string,
-    userRole?: string
+    filters: any = {},
+    societyId?: string
   ): Promise<{ complaints: IComplaint[]; total: number }> {
     try {
-      const query: any = {};
+      const query: any = societyId ? { society: new Types.ObjectId(societyId) } : {};
 
-      // If user is not admin, show only their complaints
-      if (userRole !== 'admin' && userId) {
+      if (userRole !== 'admin') {
         query.raisedBy = new Types.ObjectId(userId);
       }
 
@@ -65,12 +68,12 @@ export class ComplaintService {
         query.status = filters.status;
       }
 
-      if (filters.priority) {
-        query.priority = filters.priority;
+      if (filters.category) {
+        query.category = filters.category;
       }
 
-      if (filters.category) {
-        query.category = { $regex: filters.category, $options: 'i' };
+      if (filters.priority) {
+        query.priority = filters.priority;
       }
 
       if (filters.search) {
@@ -87,8 +90,8 @@ export class ComplaintService {
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limit)
-          .populate('raisedBy', 'name email flatNumber wing')
-          .populate('assignedTo', 'name email role'),
+          .populate('raisedBy', 'name email flatNumber')
+          .populate('assignedTo', 'name email'),
         Complaint.countDocuments(query)
       ]);
 
@@ -102,8 +105,8 @@ export class ComplaintService {
   static async getComplaintById(id: string): Promise<IComplaint> {
     try {
       const complaint = await Complaint.findById(id)
-        .populate('raisedBy', 'name email flatNumber wing phone')
-        .populate('assignedTo', 'name email role')
+        .populate('raisedBy', 'name email flatNumber phone')
+        .populate('assignedTo', 'name email phone')
         .populate('comments.user', 'name email role');
 
       if (!complaint) {
@@ -135,6 +138,8 @@ export class ComplaintService {
         throw new AppError('You do not have permission to update this complaint', 403);
       }
 
+      const previousStatus = complaint.status;
+
       // If status is being changed to resolved
       if (input.status === ComplaintStatus.RESOLVED && complaint.status !== ComplaintStatus.RESOLVED) {
         input = { ...input, resolvedAt: new Date() };
@@ -142,6 +147,24 @@ export class ComplaintService {
 
       Object.assign(complaint, input);
       await complaint.save();
+
+      // Trigger notification if status changed
+      if (input.status && input.status !== previousStatus) {
+        try {
+          await NotificationService.createNotification(
+            {
+              title: `Complaint Status Updated: ${complaint.title}`,
+              message: `Your complaint status has been updated to ${input.status.toUpperCase().replace('_', ' ')}.`,
+              userId: complaint.raisedBy.toString(),
+              type: input.status === ComplaintStatus.RESOLVED ? 'success' : 'info',
+              metadata: { complaintId: complaint._id }
+            },
+            complaint.society.toString()
+          );
+        } catch (notifErr) {
+          logger.error('Failed to send complaint status notification:', notifErr);
+        }
+      }
 
       await complaint.populate('raisedBy', 'name email flatNumber');
       await complaint.populate('assignedTo', 'name email');
@@ -167,7 +190,7 @@ export class ComplaintService {
 
       complaint.comments.push({
         text: input.text,
-        user: new Types.ObjectId(input.user),
+        user: new Types.ObjectId(input.userId),
         createdAt: new Date()
       });
 
@@ -175,7 +198,7 @@ export class ComplaintService {
       await complaint.populate('comments.user', 'name email role');
       await complaint.populate('raisedBy', 'name email flatNumber');
 
-      logger.info(`Comment added to complaint: ${id} by ${input.user}`);
+      logger.info(`Comment added to complaint: ${id} by ${input.userId}`);
       return complaint;
     } catch (error) {
       if (error instanceof AppError) throw error;

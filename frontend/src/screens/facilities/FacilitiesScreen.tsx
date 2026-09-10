@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { facilitiesApi } from '../../api/facilities';
 import { Facility, Booking } from '../../types';
@@ -33,9 +34,7 @@ export const FacilitiesScreen = ({ navigation }: any) => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useFocusEffect(useCallback(() => { fetchData(); }, []));
 
   if (loading) return <LoadingState message="Loading facilities & bookings..." />;
   if (error) return <ErrorState message={error} onRetry={fetchData} />;
@@ -76,7 +75,7 @@ export const FacilitiesScreen = ({ navigation }: any) => {
                 <Text style={styles.description}>{item.description}</Text>
                 <View style={styles.metaRow}>
                   <Text style={styles.meta}>Capacity: {item.capacity} people</Text>
-                  <Text style={styles.meta}>Rate: ₹{item.hourlyRate}/hr</Text>
+                  <Text style={styles.meta}>Fee: ₹{item.bookingFee || 0}</Text>
                 </View>
                 <TouchableOpacity
                   style={styles.bookBtn}

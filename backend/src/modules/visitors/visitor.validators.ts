@@ -68,7 +68,7 @@ export const updateVisitorValidation = [
     .trim(),
   body('status')
     .optional()
-    .isIn(['pending', 'approved', 'checked_in', 'checked_out', 'rejected'])
+    .isIn(['pending', 'pre_approved', 'approved', 'checked_in', 'checked_out', 'rejected'])
     .withMessage('Invalid status'),
   body('notes')
     .optional()
@@ -112,7 +112,7 @@ export const getVisitorsValidation = [
     .toInt(),
   query('status')
     .optional()
-    .isIn(['pending', 'approved', 'checked_in', 'checked_out', 'rejected'])
+    .isIn(['pending', 'pre_approved', 'approved', 'checked_in', 'checked_out', 'rejected'])
     .withMessage('Invalid status'),
   query('startDate')
     .optional()

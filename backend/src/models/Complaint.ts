@@ -21,6 +21,7 @@ export interface IComplaint extends Document {
   priority: ComplaintPriority;
   status: ComplaintStatus;
   raisedBy: mongoose.Types.ObjectId;
+  society: mongoose.Types.ObjectId;
   assignedTo?: mongoose.Types.ObjectId;
   comments: {
     text: string;
@@ -60,6 +61,10 @@ const ComplaintSchema = new Schema<IComplaint>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
+    },
+    society: {
+      type: Schema.Types.ObjectId,
+      ref: 'Society'
     },
     assignedTo: {
       type: Schema.Types.ObjectId,

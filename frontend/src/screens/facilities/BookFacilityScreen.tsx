@@ -42,7 +42,7 @@ export const BookFacilityScreen = ({ route, navigation }: any) => {
 
       <View style={styles.infoCard}>
         <Text style={styles.infoTitle}>{facility?.name}</Text>
-        <Text style={styles.infoText}>Hourly Rate: ₹{facility?.hourlyRate || 0}</Text>
+        <Text style={styles.infoText}>Booking Fee: ₹{facility?.bookingFee || 0}</Text>
         <Text style={styles.infoText}>Capacity: {facility?.capacity || 0} People</Text>
       </View>
 

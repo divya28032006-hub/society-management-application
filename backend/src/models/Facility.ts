@@ -43,7 +43,9 @@ const FacilitySchema = new Schema<IFacility>(
       required: true,
       min: [0, 'Available slots cannot be negative'],
       default: function(this: any) {
-        return this.capacity;
+        // Mongoose evaluates defaults without a document context for upserts.
+        // Preserve the normal capacity-based default while keeping seeded upserts safe.
+        return this?.capacity ?? 0;
       }
     },
     rules: [{

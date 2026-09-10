@@ -5,10 +5,9 @@ export interface CreateVisitorParams {
   name: string;
   phone: string;
   purpose: string;
-  flatNumber: string;
-  wing: string;
+  hostFlat: string;
+  hostName?: string;
   vehicleNumber?: string;
-  status?: 'pre_approved' | 'checked_in';
 }
 
 export const visitorsApi = {

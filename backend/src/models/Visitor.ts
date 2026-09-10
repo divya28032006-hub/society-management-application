@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export enum VisitorStatus {
   PENDING = 'pending',
+  PRE_APPROVED = 'pre_approved',
   APPROVED = 'approved',
   CHECKED_IN = 'checked_in',
   CHECKED_OUT = 'checked_out',

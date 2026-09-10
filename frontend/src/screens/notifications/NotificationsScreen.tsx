@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { notificationsApi } from '../../api/notifications';
 import { NotificationItem } from '../../types';
 import { LoadingState } from '../../components/LoadingState';
@@ -17,8 +18,10 @@ export const NotificationsScreen = () => {
     try {
       setError(null);
       const data = await notificationsApi.getNotifications();
-      setNotifications(data);
+      console.log('[NotificationsScreen] Fetched notifications count:', data?.length);
+      setNotifications(data || []);
     } catch (err: any) {
+      console.error('[NotificationsScreen] Error fetching notifications:', err);
       setError(err.message || 'Failed to fetch notifications.');
     } finally {
       setLoading(false);
@@ -26,9 +29,11 @@ export const NotificationsScreen = () => {
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchNotifications();
+    }, [])
+  );
 
   const handleMarkAllRead = async () => {
     try {

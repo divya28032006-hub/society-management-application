@@ -10,7 +10,6 @@ export const AddVisitorScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [purpose, setPurpose] = useState('');
-  const [wing, setWing] = useState(user?.wing || 'A');
   const [flatNumber, setFlatNumber] = useState(user?.flatNumber || '101');
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -27,10 +26,9 @@ export const AddVisitorScreen = ({ navigation }: any) => {
         name,
         phone,
         purpose,
-        wing,
-        flatNumber,
+        hostFlat: flatNumber,
+        hostName: user?.name,
         vehicleNumber,
-        status: isSecurity ? 'checked_in' : 'pre_approved',
       });
 
       Alert.alert('Success', isSecurity ? 'Visitor checked in successfully!' : 'Guest pre-approved successfully!', [
@@ -58,16 +56,8 @@ export const AddVisitorScreen = ({ navigation }: any) => {
       <Text style={styles.label}>Visit Purpose *</Text>
       <TextInput style={styles.input} value={purpose} onChangeText={setPurpose} placeholder="Delivery, Guest, Service..." />
 
-      <View style={styles.row}>
-        <View style={styles.col}>
-          <Text style={styles.label}>Destination Wing *</Text>
-          <TextInput style={styles.input} value={wing} onChangeText={setWing} placeholder="A" />
-        </View>
-        <View style={styles.col}>
-          <Text style={styles.label}>Flat Number *</Text>
-          <TextInput style={styles.input} value={flatNumber} onChangeText={setFlatNumber} placeholder="101" />
-        </View>
-      </View>
+      <Text style={styles.label}>Destination Flat *</Text>
+      <TextInput style={styles.input} value={flatNumber} onChangeText={setFlatNumber} placeholder="101" />
 
       <Text style={styles.label}>Vehicle Number (Optional)</Text>
       <TextInput style={styles.input} value={vehicleNumber} onChangeText={setVehicleNumber} placeholder="MH 02 AB 1234" />
