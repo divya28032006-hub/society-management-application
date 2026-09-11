@@ -22,7 +22,6 @@ const FacilitySchema = new Schema<IFacility>(
     name: {
       type: String,
       required: [true, 'Facility name is required'],
-      unique: true,
       trim: true,
       minlength: [3, 'Facility name must be at least 3 characters'],
       maxlength: [100, 'Facility name cannot exceed 100 characters']
@@ -91,7 +90,7 @@ const FacilitySchema = new Schema<IFacility>(
 
 // Indexes
 FacilitySchema.index({ society: 1, isActive: 1 });
-FacilitySchema.index({ name: 1 });
+FacilitySchema.index({ society: 1, name: 1 }, { unique: true }); // compound unique: name must be unique within a society
 FacilitySchema.index({ capacity: 1, availableSlots: 1 });
 
 // Virtual for availability

@@ -119,8 +119,13 @@ export const createBookingValidation = [
     .withMessage('Invalid date format')
     .toDate()
     .custom((value) => {
-      if (new Date(value) < new Date()) {
-        throw new Error('Booking date must be in the future');
+      // Compare calendar dates only so today is a valid booking date
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const bookingDate = new Date(value);
+      bookingDate.setHours(0, 0, 0, 0);
+      if (bookingDate < today) {
+        throw new Error('Booking date cannot be in the past');
       }
       return true;
     }),

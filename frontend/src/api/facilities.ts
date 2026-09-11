@@ -6,7 +6,7 @@ export interface CreateBookingParams {
   date: string;
   startTime: string;
   endTime: string;
-  purpose: string;
+  notes: string;
 }
 
 export const facilitiesApi = {

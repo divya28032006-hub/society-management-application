@@ -105,8 +105,8 @@ export interface Booking {
   date: string;
   startTime: string;
   endTime: string;
-  purpose: string;
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  notes?: string;    // backend stores notes (mapped from 'purpose' on creation)
+  status: 'pending' | 'booked' | 'cancelled' | 'completed'; // must match BookingStatus enum
   totalAmount: number;
   createdAt: string;
 }
@@ -121,7 +121,7 @@ export interface Visitor {
   hostResident?: User;
   entryTime?: string;
   exitTime?: string;
-  status: 'pre_approved' | 'checked_in' | 'checked_out' | 'denied';
+  status: 'pending' | 'pre_approved' | 'approved' | 'checked_in' | 'checked_out' | 'rejected'; // matches backend VisitorStatus enum
   vehicleNumber?: string;
   createdAt: string;
 }

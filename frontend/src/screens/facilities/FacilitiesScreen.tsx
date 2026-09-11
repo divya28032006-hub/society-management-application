@@ -104,7 +104,7 @@ export const FacilitiesScreen = ({ navigation }: any) => {
                 </View>
                 <Text style={styles.meta}>Date: {item.date}</Text>
                 <Text style={styles.meta}>Slot: {item.startTime} - {item.endTime}</Text>
-                <Text style={styles.meta}>Purpose: {item.purpose}</Text>
+                <Text style={styles.meta}>Purpose: {item.notes || '—'}</Text>
               </Card>
             )}
           />

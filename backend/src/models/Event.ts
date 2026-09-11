@@ -7,6 +7,7 @@ export interface IEvent extends Document {
   startDate: Date;
   endDate: Date;
   organizer: mongoose.Types.ObjectId;
+  society: mongoose.Types.ObjectId;
   maxAttendees?: number;
   attendees: {
     user: mongoose.Types.ObjectId;

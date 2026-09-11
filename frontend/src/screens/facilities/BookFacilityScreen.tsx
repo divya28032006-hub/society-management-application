@@ -24,7 +24,7 @@ export const BookFacilityScreen = ({ route, navigation }: any) => {
         date,
         startTime,
         endTime,
-        purpose,
+        notes: purpose,
       });
       Alert.alert('Booking Request Sent', `Your booking request for ${facility.name} was submitted successfully!`, [
         { text: 'OK', onPress: () => navigation.goBack() }
